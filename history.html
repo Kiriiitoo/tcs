@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="贪吃蛇大作战 - 历史记录与排行榜">
+    <title>贪吃蛇大作战 - 历史记录</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- 动态背景球体 -->
+    <div class="background-orbs">
+        <div class="orb orb-cyan"></div>
+        <div class="orb orb-fuchsia"></div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="main-container">
+        <!-- 标题 -->
+        <h1 class="gradient-title gradient-title-sm">📊 游戏记录</h1>
+        <p class="subtitle">查看排行榜和你的历史成绩</p>
+
+        <!-- 标签切换 -->
+        <div class="glass-card" style="width: 100%; max-width: 500px;">
+            <div class="tabs">
+                <button class="tab active" id="tab-leaderboard" onclick="switchTab('leaderboard')">🏆 排行榜</button>
+                <button class="tab" id="tab-history" onclick="switchTab('history')">📜 我的记录</button>
+            </div>
+
+            <!-- 排行榜 -->
+            <div id="leaderboard-container" class="leaderboard">
+                <ul class="leaderboard-list" id="leaderboard-list">
+                    <!-- 动态生成 -->
+                </ul>
+                <p id="leaderboard-empty" class="text-center hidden" style="color: var(--text-muted); padding: 40px 0;">
+                    暂无记录，快去玩游戏吧！
+                </p>
+            </div>
+
+            <!-- 我的记录 -->
+            <div id="history-container" class="leaderboard hidden">
+                <ul class="leaderboard-list" id="history-list">
+                    <!-- 动态生成 -->
+                </ul>
+                <p id="history-empty" class="text-center hidden" style="color: var(--text-muted); padding: 40px 0;">
+                    你还没有游戏记录
+                </p>
+            </div>
+        </div>
+
+        <!-- 返回按钮 -->
+        <div class="game-controls">
+            <button class="btn btn-primary" onclick="window.location.href='game.html'">
+                ← 返回游戏
+            </button>
+        </div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // 检查登录状态
+        if (!Auth.requireLogin()) {
+            // 如果未登录，requireLogin 会自动跳转
+        }
+
+        /**
+         * 切换标签
+         */
+        function switchTab(tab) {
+            const leaderboardContainer = document.getElementById('leaderboard-container');
+            const historyContainer = document.getElementById('history-container');
+            const tabLeaderboard = document.getElementById('tab-leaderboard');
+            const tabHistory = document.getElementById('tab-history');
+
+            if (tab === 'leaderboard') {
+                leaderboardContainer.classList.remove('hidden');
+                historyContainer.classList.add('hidden');
+                tabLeaderboard.classList.add('active');
+                tabHistory.classList.remove('active');
+            } else {
+                leaderboardContainer.classList.add('hidden');
+                historyContainer.classList.remove('hidden');
+                tabLeaderboard.classList.remove('active');
+                tabHistory.classList.add('active');
+            }
+        }
+
+        /**
+         * 获取排名样式类名
+         */
+        function getRankClass(rank) {
+            if (rank === 1) return 'gold';
+            if (rank === 2) return 'silver';
+            if (rank === 3) return 'bronze';
+            return '';
+        }
+
+        /**
+         * 格式化日期
+         */
+        function formatDate(isoString) {
+            const date = new Date(isoString);
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return `${month}-${day} ${hours}:${minutes}`;
+        }
+
+        /**
+         * 渲染排行榜
+         */
+        function renderLeaderboard() {
+            const leaderboard = Storage.getLeaderboard(10);
+            const listElement = document.getElementById('leaderboard-list');
+            const emptyElement = document.getElementById('leaderboard-empty');
+
+            if (leaderboard.length === 0) {
+                listElement.innerHTML = '';
+                emptyElement.classList.remove('hidden');
+                return;
+            }
+
+            emptyElement.classList.add('hidden');
+
+            listElement.innerHTML = leaderboard.map((record, index) => {
+                const rank = index + 1;
+                const rankClass = getRankClass(rank);
+                return `
+          <li class="leaderboard-item">
+            <span class="leaderboard-rank ${rankClass}">#${rank}</span>
+            <span class="leaderboard-name">${record.username}</span>
+            <span class="leaderboard-score">${record.score} 分</span>
+          </li>
+        `;
+            }).join('');
+        }
+
+        /**
+         * 渲染我的记录
+         */
+        function renderHistory() {
+            const username = Auth.getCurrentUsername();
+            const records = Storage.getUserRecords(username);
+            const listElement = document.getElementById('history-list');
+            const emptyElement = document.getElementById('history-empty');
+
+            if (records.length === 0) {
+                listElement.innerHTML = '';
+                emptyElement.classList.remove('hidden');
+                return;
+            }
+
+            emptyElement.classList.add('hidden');
+
+            listElement.innerHTML = records.slice(0, 20).map((record, index) => {
+                return `
+          <li class="leaderboard-item">
+            <span class="leaderboard-time">${formatDate(record.playedAt)}</span>
+            <span class="leaderboard-name" style="margin-left: auto;">时长 ${record.duration}秒</span>
+            <span class="leaderboard-score">${record.score} 分</span>
+          </li>
+        `;
+            }).join('');
+        }
+
+        // 页面加载时渲染数据
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLeaderboard();
+            renderHistory();
+        });
+    </script>
+</body>
+
+</html>
