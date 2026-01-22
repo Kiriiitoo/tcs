@@ -1,0 +1,629 @@
+/* ========================================
+   贪吃蛇大作战 - 全局样式设计系统
+   ======================================== */
+
+/* 导入 Outfit 字体 */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+/* ========================================
+   CSS 变量 - 设计系统核心
+   ======================================== */
+:root {
+    /* 背景色 */
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+
+    /* 毛玻璃效果 */
+    --glass-bg: rgba(15, 23, 42, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-blur: 12px;
+
+    /* 强调色 */
+    --accent-cyan: #06b6d4;
+    --accent-cyan-light: #22d3ee;
+    --accent-fuchsia: #d946ef;
+    --accent-fuchsia-light: #e879f9;
+
+    /* 发光效果 */
+    --glow-cyan: 0 0 20px rgba(6, 182, 212, 0.5);
+    --glow-cyan-strong: 0 0 30px rgba(6, 182, 212, 0.7);
+    --glow-fuchsia: 0 0 20px rgba(217, 70, 239, 0.5);
+
+    /* 文字颜色 */
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+
+    /* 字体 */
+    --font-main: 'Outfit', sans-serif;
+
+    /* 过渡 */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+
+    /* 圆角 */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+}
+
+/* ========================================
+   全局重置
+   ======================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* ========================================
+   动态背景 - 漂浮发光球体
+   ======================================== */
+.background-orbs {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.6;
+}
+
+/* 青色球体 */
+.orb-cyan {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--accent-cyan) 0%, transparent 70%);
+    top: -10%;
+    left: -10%;
+    animation: float-cyan 20s ease-in-out infinite;
+}
+
+/* 紫红色球体 */
+.orb-fuchsia {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, var(--accent-fuchsia) 0%, transparent 70%);
+    bottom: -10%;
+    right: -10%;
+    animation: float-fuchsia 25s ease-in-out infinite;
+}
+
+/* 漂浮动画 */
+@keyframes float-cyan {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    25% {
+        transform: translate(100px, 50px) scale(1.1);
+    }
+
+    50% {
+        transform: translate(50px, 100px) scale(0.9);
+    }
+
+    75% {
+        transform: translate(-50px, 50px) scale(1.05);
+    }
+}
+
+@keyframes float-fuchsia {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(-80px, -60px) scale(1.15);
+    }
+
+    66% {
+        transform: translate(60px, -80px) scale(0.95);
+    }
+}
+
+/* 游戏结束颤抖动画 */
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-8px);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(8px);
+    }
+}
+
+.game-canvas-wrapper.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* ========================================
+   主容器布局
+   ======================================== */
+.main-container {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* ========================================
+   毛玻璃卡片
+   ======================================== */
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.glass-card-sm {
+    padding: 24px;
+    border-radius: var(--radius-md);
+}
+
+/* ========================================
+   渐变标题
+   ======================================== */
+.gradient-title {
+    font-size: 3rem;
+    font-weight: 700;
+    text-align: center;
+    background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-fuchsia) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+}
+
+.gradient-title-sm {
+    font-size: 2rem;
+}
+
+.subtitle {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: 32px;
+}
+
+/* ========================================
+   表单元素
+   ======================================== */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 14px 18px;
+    font-family: var(--font-main);
+    font-size: 1rem;
+    color: var(--text-primary);
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    outline: none;
+    transition: all var(--transition-fast);
+}
+
+.form-input:focus {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+}
+
+.form-input::placeholder {
+    color: var(--text-muted);
+}
+
+/* ========================================
+   霓虹发光按钮
+   ======================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 28px;
+    font-family: var(--font-main);
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-cyan-light) 100%);
+    color: var(--bg-primary);
+    box-shadow: var(--glow-cyan);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--accent-cyan-light) 0%, var(--accent-cyan) 100%);
+    box-shadow: var(--glow-cyan-strong);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--glass-border);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border-color: var(--accent-cyan);
+}
+
+.btn-fuchsia {
+    background: linear-gradient(135deg, var(--accent-fuchsia) 0%, var(--accent-fuchsia-light) 100%);
+    color: white;
+    box-shadow: var(--glow-fuchsia);
+}
+
+.btn-fuchsia:hover {
+    box-shadow: 0 0 30px rgba(217, 70, 239, 0.7);
+    transform: translateY(-2px);
+}
+
+.btn-block {
+    width: 100%;
+}
+
+.btn-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+/* ========================================
+   游戏画布容器
+   ======================================== */
+.game-canvas-wrapper {
+    position: relative;
+    padding: 4px;
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-fuchsia));
+    border-radius: var(--radius-md);
+    box-shadow:
+        0 0 40px rgba(6, 182, 212, 0.3),
+        0 0 60px rgba(217, 70, 239, 0.2);
+}
+
+.game-canvas {
+    display: block;
+    background: var(--bg-primary);
+    border-radius: calc(var(--radius-md) - 4px);
+}
+
+/* ========================================
+   顶部导航栏
+   ======================================== */
+.top-bar {
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    margin-bottom: 24px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-secondary);
+}
+
+.user-info strong {
+    color: var(--accent-cyan);
+}
+
+.score-display {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.score-display span {
+    color: var(--accent-fuchsia);
+}
+
+/* ========================================
+   游戏控制区
+   ======================================== */
+.game-controls {
+    display: flex;
+    gap: 16px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* ========================================
+   排行榜和历史记录
+   ======================================== */
+.leaderboard {
+    width: 100%;
+    max-width: 500px;
+}
+
+.leaderboard-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.leaderboard-list {
+    list-style: none;
+}
+
+.leaderboard-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    background: rgba(30, 41, 59, 0.5);
+    border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+    transition: all var(--transition-fast);
+}
+
+.leaderboard-item:hover {
+    background: rgba(30, 41, 59, 0.8);
+    transform: translateX(5px);
+}
+
+.leaderboard-rank {
+    font-weight: 700;
+    color: var(--accent-cyan);
+    min-width: 30px;
+}
+
+.leaderboard-rank.gold {
+    color: #fbbf24;
+}
+
+.leaderboard-rank.silver {
+    color: #94a3b8;
+}
+
+.leaderboard-rank.bronze {
+    color: #d97706;
+}
+
+.leaderboard-name {
+    flex: 1;
+    margin-left: 12px;
+}
+
+.leaderboard-score {
+    font-weight: 600;
+    color: var(--accent-fuchsia);
+}
+
+.leaderboard-time {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-left: 12px;
+}
+
+/* ========================================
+   消息提示
+   ======================================== */
+.message {
+    padding: 12px 18px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+}
+
+.message-error {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    color: #fca5a5;
+}
+
+.message-success {
+    background: rgba(34, 197, 94, 0.2);
+    border: 1px solid rgba(34, 197, 94, 0.5);
+    color: #86efac;
+}
+
+/* ========================================
+   游戏结束弹窗
+   ======================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-normal);
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    text-align: center;
+}
+
+.modal-title {
+    font-size: 2.5rem;
+    margin-bottom: 16px;
+}
+
+.modal-score {
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+}
+
+.modal-score span {
+    color: var(--accent-fuchsia);
+    font-weight: 700;
+    animation: pulse 2s infinite;
+}
+
+/* ========================================
+   标签切换
+   ======================================== */
+.tabs {
+    display: flex;
+    gap: 4px;
+    background: rgba(30, 41, 59, 0.5);
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 24px;
+}
+
+.tab {
+    flex: 1;
+    padding: 10px 20px;
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+    font-weight: 500;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: calc(var(--radius-sm) - 2px);
+    transition: all var(--transition-fast);
+}
+
+.tab:hover {
+    color: var(--text-primary);
+}
+
+.tab.active {
+    background: var(--accent-cyan);
+    color: var(--bg-primary);
+}
+
+/* ========================================
+   响应式适配
+   ======================================== */
+@media (max-width: 600px) {
+    .glass-card {
+        padding: 28px 20px;
+        margin: 10px;
+    }
+
+    .gradient-title {
+        font-size: 2.2rem;
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+
+    .top-bar {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+    }
+
+    .game-controls {
+        flex-direction: column;
+    }
+}
+
+/* ========================================
+   工具类
+   ======================================== */
+.text-center {
+    text-align: center;
+}
+
+.mt-4 {
+    margin-top: 16px;
+}
+
+.mt-6 {
+    margin-top: 24px;
+}
+
+.mb-4 {
+    margin-bottom: 16px;
+}
+
+.hidden {
+    display: none !important;
+}
