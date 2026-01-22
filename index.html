@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="贪吃蛇大作战 - 一款精美的网页版贪吃蛇游戏">
+  <title>贪吃蛇大作战 - 登录</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 动态背景球体 -->
+  <div class="background-orbs">
+    <div class="orb orb-cyan"></div>
+    <div class="orb orb-fuchsia"></div>
+  </div>
+
+  <!-- 主容器 -->
+  <div class="main-container">
+    <!-- 标题 -->
+    <h1 class="gradient-title">🐍 贪吃蛇大作战</h1>
+    <p class="subtitle">经典游戏，全新体验</p>
+
+    <!-- 登录/注册卡片 -->
+    <div class="glass-card" style="width: 100%; max-width: 400px;">
+      <!-- 标签切换 -->
+      <div class="tabs">
+        <button class="tab active" id="tab-login" onclick="switchTab('login')">登录</button>
+        <button class="tab" id="tab-register" onclick="switchTab('register')">注册</button>
+      </div>
+
+      <!-- 消息提示区 -->
+      <div id="message-container"></div>
+
+      <!-- 登录表单 -->
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label" for="login-username">用户名</label>
+          <input type="text" id="login-username" class="form-input" placeholder="请输入用户名" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-password">密码</label>
+          <input type="password" id="login-password" class="form-input" placeholder="请输入密码" autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">
+          🚀 登录
+        </button>
+      </form>
+
+      <!-- 注册表单 -->
+      <form id="register-form" class="hidden" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label class="form-label" for="register-username">用户名</label>
+          <input type="text" id="register-username" class="form-input" placeholder="2-20个字符" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="register-password">密码</label>
+          <input type="password" id="register-password" class="form-input" placeholder="至少4个字符" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="register-confirm">确认密码</label>
+          <input type="password" id="register-confirm" class="form-input" placeholder="再次输入密码" autocomplete="new-password">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">
+          ✨ 注册
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // 检查是否已登录，如果已登录则跳转到游戏页
+    if (Auth.isLoggedIn()) {
+      window.location.href = 'game.html';
+    }
+
+    /**
+     * 切换登录/注册标签
+     */
+    function switchTab(tab) {
+      const loginForm = document.getElementById('login-form');
+      const registerForm = document.getElementById('register-form');
+      const tabLogin = document.getElementById('tab-login');
+      const tabRegister = document.getElementById('tab-register');
+      const messageContainer = document.getElementById('message-container');
+
+      // 清除消息
+      messageContainer.innerHTML = '';
+
+      if (tab === 'login') {
+        loginForm.classList.remove('hidden');
+        registerForm.classList.add('hidden');
+        tabLogin.classList.add('active');
+        tabRegister.classList.remove('active');
+      } else {
+        loginForm.classList.add('hidden');
+        registerForm.classList.remove('hidden');
+        tabLogin.classList.remove('active');
+        tabRegister.classList.add('active');
+      }
+    }
+
+    /**
+     * 显示消息
+     */
+    function showMessage(message, type = 'error') {
+      const container = document.getElementById('message-container');
+      container.innerHTML = `<div class="message message-${type}">${message}</div>`;
+    }
+
+    /**
+     * 处理登录
+     */
+    function handleLogin(event) {
+      event.preventDefault();
+      
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+
+      const result = Auth.login(username, password);
+      
+      if (result.success) {
+        showMessage(result.message, 'success');
+        setTimeout(() => {
+          window.location.href = 'game.html';
+        }, 500);
+      } else {
+        showMessage(result.message, 'error');
+      }
+    }
+
+    /**
+     * 处理注册
+     */
+    function handleRegister(event) {
+      event.preventDefault();
+      
+      const username = document.getElementById('register-username').value;
+      const password = document.getElementById('register-password').value;
+      const confirm = document.getElementById('register-confirm').value;
+
+      // 验证密码确认
+      if (password !== confirm) {
+        showMessage('两次输入的密码不一致', 'error');
+        return;
+      }
+
+      const result = Auth.register(username, password);
+      
+      if (result.success) {
+        showMessage(result.message, 'success');
+        setTimeout(() => {
+          window.location.href = 'game.html';
+        }, 500);
+      } else {
+        showMessage(result.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>
