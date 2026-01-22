@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="贪吃蛇大作战 - 游戏主页面">
+    <title>贪吃蛇大作战 - 游戏</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- 动态背景球体 -->
+    <div class="background-orbs">
+        <div class="orb orb-cyan"></div>
+        <div class="orb orb-fuchsia"></div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="main-container">
+        <!-- 顶部信息栏 -->
+        <div class="top-bar">
+            <div class="user-info">
+                欢迎, <strong id="username-display">玩家</strong>!
+                <span class="text-muted">|</span>
+                最高分: <span id="high-score">0</span>
+            </div>
+            <div class="score-display">
+                当前分数: <span id="current-score">0</span>
+            </div>
+            <button class="btn btn-secondary" onclick="handleLogout()">退出登录</button>
+        </div>
+
+        <!-- 游戏画布 -->
+        <div class="game-canvas-wrapper">
+            <canvas id="game-canvas" class="game-canvas" width="400" height="400"></canvas>
+        </div>
+
+        <!-- 游戏控制按钮 -->
+        <div class="game-controls">
+            <button class="btn btn-primary" id="btn-start" onclick="startGame()">
+                ▶ 开始游戏
+            </button>
+            <button class="btn btn-secondary" id="btn-pause" onclick="togglePause()" disabled>
+                ⏸ 暂停
+            </button>
+            <button class="btn btn-fuchsia" onclick="window.location.href='history.html'">
+                📊 历史记录
+            </button>
+        </div>
+
+        <!-- 操作提示 -->
+        <p class="text-center mt-4" style="color: var(--text-muted); font-size: 0.9rem;">
+            使用 <strong>方向键</strong> 或 <strong>WASD</strong> 控制方向，<strong>空格键</strong> 暂停
+        </p>
+    </div>
+
+    <!-- 游戏结束弹窗 -->
+    <div class="modal-overlay" id="game-over-modal">
+        <div class="glass-card modal-content">
+            <h2 class="modal-title gradient-title gradient-title-sm">游戏结束!</h2>
+            <p class="modal-score">最终得分: <span id="final-score">0</span></p>
+            <p style="color: var(--text-muted); margin-bottom: 24px;">游戏时长: <span id="game-duration">0</span> 秒</p>
+            <div class="btn-group" style="justify-content: center;">
+                <button class="btn btn-primary" onclick="restartGame()">🔄 再来一局</button>
+                <button class="btn btn-secondary" onclick="closeModal()">返回</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/game.js"></script>
+    <script>
+        // 检查登录状态
+        if (!Auth.requireLogin()) {
+            // 如果未登录，requireLogin 会自动跳转
+        }
+
+        // 初始化游戏
+        let game = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 显示用户名
+            const username = Auth.getCurrentUsername();
+            document.getElementById('username-display').textContent = username;
+
+            // 显示最高分
+            const highScore = Storage.getUserHighScore(username);
+            document.getElementById('high-score').textContent = highScore;
+
+            // 创建游戏实例
+            game = new SnakeGame('game-canvas');
+
+            // 设置回调
+            game.onScoreChange = (score) => {
+                document.getElementById('current-score').textContent = score;
+            };
+
+            game.onGameOver = (score, duration) => {
+                showGameOverModal(score, duration);
+                // 更新最高分显示
+                const highScore = Storage.getUserHighScore(username);
+                document.getElementById('high-score').textContent = highScore;
+            };
+
+            // 初始化游戏
+            game.init();
+        });
+
+        /**
+         * 开始游戏
+         */
+        function startGame() {
+            if (!game) return;
+
+            game.init();
+            game.start();
+
+            document.getElementById('btn-start').disabled = true;
+            document.getElementById('btn-start').textContent = '游戏中...';
+            document.getElementById('btn-pause').disabled = false;
+        }
+
+        /**
+         * 暂停/继续游戏
+         */
+        function togglePause() {
+            if (!game) return;
+
+            game.togglePause();
+
+            const btnPause = document.getElementById('btn-pause');
+            if (game.isPaused) {
+                btnPause.textContent = '▶ 继续';
+            } else {
+                btnPause.textContent = '⏸ 暂停';
+            }
+        }
+
+        /**
+         * 显示游戏结束弹窗
+         */
+        function showGameOverModal(score, duration) {
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('game-duration').textContent = duration;
+            document.getElementById('game-over-modal').classList.add('active');
+
+            // 重置按钮状态
+            document.getElementById('btn-start').disabled = false;
+            document.getElementById('btn-start').textContent = '▶ 开始游戏';
+            document.getElementById('btn-pause').disabled = true;
+            document.getElementById('btn-pause').textContent = '⏸ 暂停';
+        }
+
+        /**
+         * 关闭弹窗
+         */
+        function closeModal() {
+            document.getElementById('game-over-modal').classList.remove('active');
+        }
+
+        /**
+         * 重新开始游戏
+         */
+        function restartGame() {
+            closeModal();
+            startGame();
+        }
+
+        /**
+         * 退出登录
+         */
+        function handleLogout() {
+            Auth.logout();
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+
+</html>
